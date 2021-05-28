@@ -250,6 +250,14 @@ celeb_a_test_data = celeb_a_builder.as_dataset(split='test').batch(1).map(prepro
 results = model_unconstrained.evaluate(celeb_a_test_data)
 
 model_location = save_model(model_unconstrained, 'model_export_unconstrained')
-eval_results_unconstrained = get_eval_results(model_location, 'eval_results_unconstrained')
+#eval_results_unconstrained = get_eval_results(model_location, 'eval_results_unconstrained')
+
+# Convert the model
+converter = tf.lite.TFLiteConverter.from_saved_model(model_location) # path to the SavedModel directory
+tflite_model = converter.convert()
+
+# Save the model.
+with open('model.tflite', 'wb') as f:
+  f.write(tflite_model)
 
 tfma.addons.fairness.view.widget_view.render_fairness_indicator(eval_results_unconstrained)
