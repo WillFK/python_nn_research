@@ -2,7 +2,6 @@ import os
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 import PIL
 import tensorflow as tf
 import tempfile
@@ -11,8 +10,17 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
+import tensorflow_model_analysis as tfma
+
+from tfx_bsl.tfxio import tensor_adapter
+from tfx_bsl.tfxio import tf_example_record
+
+from tensorflow_metadata.proto.v0 import schema_pb2
 
 import tensorflow_datasets as tfds
+
+from google.protobuf import text_format
+
 
 gcs_base_dir = "gs://celeb_a_dataset/"
 celeb_a_builder = tfds.builder("celeb_a", data_dir=gcs_base_dir, version='2.0.0')
@@ -26,7 +34,8 @@ print('Celeb_A dataset version: %s' % version)
 # attributes
 ATTR_KEY = "attributes"
 IMAGE_KEY = "image"
-LABEL_KEY = "Smiling"
+#LABEL_KEY = "Smiling"
+LABEL_KEY = "Eyeglasses"
 GROUP_KEY = "Young"
 IMAGE_SIZE = 28
 
@@ -95,6 +104,7 @@ def tfds_filepattern_for_split(dataset_name, split):
 def celeb_a_train_data_wo_group(batch_size):
   celeb_a_train_data = celeb_a_builder.as_dataset(split='train').shuffle(1024).repeat().batch(batch_size).map(preprocess_input_dict)
   return celeb_a_train_data.map(get_image_and_label)
+
 def celeb_a_train_data_w_group(batch_size):
   celeb_a_train_data = celeb_a_builder.as_dataset(split='train').shuffle(1024).repeat().batch(batch_size).map(preprocess_input_dict)
   return celeb_a_train_data.map(get_image_label_and_group)
